@@ -1,0 +1,6 @@
+resource_group_name    = "azure-pricing-RG"
+location               = "germanywestcentral"
+prefix                 = "az-pricing-tool"
+environment            = "development"
+max_pricing_items      = "-1"
+subscription_id        = "e1451471-4877-40c5-b65c-46fab5c164f6"
