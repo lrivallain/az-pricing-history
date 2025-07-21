@@ -1,0 +1,50 @@
+name: Deploy Azure Function App
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+env:
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'function_app'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+      working-directory: ./${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy to Azure Functions
+      uses: Azure/functions-action@v1
+      with:
+        app-name: 'az-pricing-tool-pricing-func'
+        package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Get Function App URL
+      run: |
+        echo "Function App deployed successfully!"
+        echo "Manual trigger endpoint: https://az-pricing-tool-pricing-func.azurewebsites.net/api/collect"
+        echo "Timer trigger runs daily at 2 AM UTC"
