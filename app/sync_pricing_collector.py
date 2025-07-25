@@ -20,6 +20,8 @@ from azure.identity import DefaultAzureCredential
 from azure.kusto.data import KustoClient, KustoConnectionStringBuilder
 from azure.kusto.data.exceptions import KustoServiceError
 
+api_url = "https://prices.azure.com/api/retail/prices"
+
 # Import ADX logger for error logging
 try:
     from sync_adx_logger import setup_adx_logging, create_crash_logger
@@ -56,18 +58,6 @@ class SyncPricingCollector:
         self.api_retry_attempts = int(os.getenv('API_RETRY_ATTEMPTS', '3'))
         self.api_retry_delay = float(os.getenv('API_RETRY_DELAY', '2.0'))
 
-        # API filtering configuration
-        self.filters_json = os.getenv('FILTERS_JSON')
-        self.api_filters = None
-        # if self.filters_json:
-        #     try:
-        #         filters_data = json.loads(self.filters_json)
-        #         self.api_filters = filters_data.get('filters', {})
-        #         print(f"✓ API filters loaded: {self.api_filters}", file=sys.stderr, flush=True)
-        #     except json.JSONDecodeError as e:
-        #         print(f"✗ Invalid FILTERS_JSON format: {e}", file=sys.stderr, flush=True)
-        self.api_filters = None
-
         # Job metadata
         self.job_id = str(uuid.uuid4())
         self.job_datetime = datetime.now(timezone.utc)
@@ -93,8 +83,6 @@ class SyncPricingCollector:
         self.logger.info(f"Environment: {'local' if self.is_local else 'production'}")
         self.logger.info(f"API retry attempts: {self.api_retry_attempts}")
         self.logger.info(f"API retry delay: {self.api_retry_delay}s")
-        if self.api_filters:
-            self.logger.info(f"API filtering enabled with {len(self.api_filters)} filters")
 
         self.logger.info(f"Sync Pricing Collector initialized - Job ID: {self.job_id}")
 
@@ -318,27 +306,6 @@ class SyncPricingCollector:
         # All retries exhausted
         raise Exception(f"API request failed after {self.api_retry_attempts} attempts: {last_exception}")
 
-    def build_api_url(self, base_url: str = "https://prices.azure.com/api/retail/prices") -> str:
-        """Build API URL with optional filters."""
-        if not self.api_filters:
-            return base_url
-
-        # Build filter string for Azure Pricing API
-        filter_parts = []
-        for key, value in self.api_filters.items():
-            # Escape single quotes in values
-            escaped_value = str(value).replace("'", "''")
-            filter_parts.append(f"{key} eq '{escaped_value}'")
-
-        if filter_parts:
-            filter_string = " and ".join(filter_parts)
-            # URL encode the filter string
-            encoded_filter = quote(filter_string)
-            url_with_filters = f"{base_url}?$filter={encoded_filter}"
-            self.logger.info(f"Using filtered API URL: {url_with_filters}")
-            return url_with_filters
-
-        return base_url
 
     def collect_and_ingest_pricing_data(self):
         """Collect pricing data from Azure API and ingest to ADX in real-time."""
@@ -355,8 +322,6 @@ class SyncPricingCollector:
             # Set up ADX logging now that we have an authenticated client
             self.setup_adx_logging_with_client(client)
 
-            # Build initial API URL with optional filters
-            api_url = self.build_api_url()
             next_page_link = api_url
             page_count = 0
 
@@ -386,13 +351,12 @@ class SyncPricingCollector:
                         self.logger.info(f"Stopping item processing: reached max items limit of {self.max_items}")
                         break
 
-                    # Add job metadata to each item using the correct column names
+                    # Add job metadata to each item using camelCase column names
                     enriched_item = {
                         **item,
-                        'JobId': self.job_id,
-                        'JobDateTime': self.job_datetime.isoformat(),
-                        'JobType': self.job_type,
-                        'CollectionTimestamp': datetime.now(timezone.utc).isoformat()
+                        'jobId': self.job_id,
+                        'jobDateTime': self.job_datetime.isoformat(),
+                        'jobType': self.job_type
                     }
                     page_items.append(enriched_item)
                     total_items += 1
@@ -432,10 +396,9 @@ class SyncPricingCollector:
         """Create the pricing metrics table if it doesn't exist."""
         create_table_command = """
             .create table ['pricing_metrics'] (
-                JobId: string,
-                JobDateTime: datetime,
-                JobType: string,
-                CollectionTimestamp: datetime,
+                jobId: string,
+                jobDateTime: datetime,
+                jobType: string,
                 currencyCode: string,
                 tierMinimumUnits: real,
                 retailPrice: real,
@@ -482,10 +445,9 @@ class SyncPricingCollector:
             if items:
                 sample_item = items[0]
                 self.logger.debug(f"Sample item keys: {list(sample_item.keys())}")
-                self.logger.debug(f"JobId: {sample_item.get('JobId', 'MISSING')}")
-                self.logger.debug(f"JobDateTime: {sample_item.get('JobDateTime', 'MISSING')}")
-                self.logger.debug(f"JobType: {sample_item.get('JobType', 'MISSING')}")
-                self.logger.debug(f"CollectionTimestamp: {sample_item.get('CollectionTimestamp', 'MISSING')}")
+                self.logger.debug(f"jobId: {sample_item.get('jobId', 'MISSING')}")
+                self.logger.debug(f"jobDateTime: {sample_item.get('jobDateTime', 'MISSING')}")
+                self.logger.debug(f"jobType: {sample_item.get('jobType', 'MISSING')}")
 
             # Convert to JSON Lines format
             json_lines = '\n'.join(json.dumps(item, default=str) for item in items)

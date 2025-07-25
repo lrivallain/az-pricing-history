@@ -37,7 +37,7 @@ print_warning() {
 # Configuration
 CONFIG_FILE=".env.local"
 IMAGE_NAME="azpricingtoolacr.azurecr.io/pricing-collector"
-IMAGE_TAG="latest"
+IMAGE_TAG="local-test"
 CONTAINER_NAME="pricing-collector-local"
 
 print_header "Azure Pricing Collection - Local Docker Run"
