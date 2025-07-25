@@ -6,7 +6,7 @@ variable "subscription_id" {
 variable "resource_group_name" {
   description = "Name of the Azure resource group"
   type        = string
-  default     = "rg-azure-pricing-tool"
+  default     = "azure-pricing-RG"
 }
 
 variable "location" {
@@ -18,29 +18,17 @@ variable "location" {
 variable "prefix" {
   description = "Prefix for resource names"
   type        = string
-  default     = "pricing-tool"
+  default     = "az-pricing-tool"
 }
 
 variable "environment" {
   description = "Environment tag"
   type        = string
-  default     = "development"
+  default     = "production"
 }
 
 variable "max_pricing_items" {
-  description = "Maximum pricing items to process (-1 for unlimited)"
+  description = "Maximum pricing items to process per job"
   type        = string
-  default     = "-1"
-}
-
-variable "github_repo_url" {
-  description = "GitHub repository URL for source control"
-  type        = string
-  default     = "https://github.com/lrivallain/az-pricing-history.git"
-}
-
-variable "github_branch" {
-  description = "GitHub branch to deploy from"
-  type        = string
-  default     = "master"
+  default     = "1000"
 }

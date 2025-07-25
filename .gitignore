@@ -26,33 +26,8 @@ wheels/
 *.egg
 MANIFEST
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
 # Environments
+.python-version
 .env
 .venv
 env/
@@ -83,13 +58,12 @@ logs/
 # Docker
 .dockerignore
 
-# Redis dumps
-dump.rdb
-
 # Temporary files
 *.tmp
 *.temp
 
-# Application specific
-pricing_data_*.json
-cache/
+# Terraform
+terraform/.terraform/
+terraform/terraform.tfstate*
+terraform/tfplan
+terraform/.terraform.lock.hcl

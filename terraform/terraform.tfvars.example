@@ -1,0 +1,53 @@
+# Azure Pricing Tool - Terraform Configuration Example
+# ===================================================
+# Copy this to terraform.tfvars and customize the values
+
+# Azure Subscription Configuration (REQUIRED)
+subscription_id = "your-subscription-id-here"
+
+# Resource Naming and Location
+resource_group_name = "azure-pricing-RG"
+location           = "East US"
+prefix             = "az-pricing-tool"
+environment        = "production"
+
+# Performance and Scale Configuration
+max_pricing_items = "5000"
+
+# Example configurations for different environments:
+
+# Development Environment
+# -----------------------
+# subscription_id = "dev-subscription-id"
+# resource_group_name = "azure-pricing-dev-RG"
+# location = "East US 2"
+# prefix = "az-pricing-dev"
+# environment = "development"
+# max_pricing_items = "100"
+
+# Staging Environment
+# ------------------
+# subscription_id = "staging-subscription-id"
+# resource_group_name = "azure-pricing-staging-RG"
+# location = "West US 2"
+# prefix = "az-pricing-staging"
+# environment = "staging"
+# max_pricing_items = "1000"
+
+# Production Environment
+# ---------------------
+# subscription_id = "prod-subscription-id"
+# resource_group_name = "azure-pricing-prod-RG"
+# location = "East US"
+# prefix = "az-pricing-prod"
+# environment = "production"
+# max_pricing_items = "10000"
+
+# Regional Options (choose one):
+# - "East US"
+# - "East US 2"
+# - "West US 2"
+# - "West Europe"
+# - "North Europe"
+# - "Southeast Asia"
+# - "Australia East"

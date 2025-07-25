@@ -1,0 +1,23 @@
+# Azure Pricing Collection Application Dependencies
+# ===============================================
+
+# Core Azure SDK libraries
+azure-identity>=1.15.0
+azure-kusto-data>=4.3.1
+azure-storage-blob>=12.19.0
+
+# HTTP client for API calls
+requests>=2.31.0
+
+# JSON and data handling
+ujson>=5.8.0
+
+# Monitoring and observability
+azure-monitor-opentelemetry>=1.2.0
+
+# Optional: Enhanced logging
+structlog>=23.2.0
+
+# Development and testing (optional)
+pytest>=7.4.0
+pytest-cov>=4.1.0
