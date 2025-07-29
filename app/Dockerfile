@@ -46,8 +46,11 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN useradd -m -u 1000 appuser
 
 # Copy application code and set ownership
-COPY sync_adx_logger.py .
-COPY sync_pricing_collector.py .
+COPY adx_logger.py .
+COPY main.py .
+COPY core/ ./core/
+COPY collectors/ ./collectors/
+COPY shared/ ./shared/
 RUN chown -R appuser:appuser /app
 
 # Switch to non-root user
@@ -62,4 +65,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import sys; sys.exit(0)"
 
 # Default command
-CMD ["python", "sync_pricing_collector.py"]
+CMD ["python", "main.py"]

@@ -140,7 +140,12 @@ resource "azurerm_container_app_job" "pricing_scheduler" {
       }
 
       env {
-        name  = "MAX_PRICING_ITEMS"
+        name = "ENABLE_AZURE_PRICING_COLLECTOR"
+        value = "true"
+      }
+
+      env {
+        name  = "AZURE_PRICING_MAX_ITEMS"
         value = var.max_pricing_items
       }
 
@@ -237,7 +242,12 @@ resource "azurerm_container_app_job" "pricing_manual" {
       }
 
       env {
-        name  = "MAX_PRICING_ITEMS"
+        name = "ENABLE_AZURE_PRICING_COLLECTOR"
+        value = "true"
+      }
+
+      env {
+        name  = "AZURE_PRICING_MAX_ITEMS"
         value = var.max_pricing_items
       }
 
@@ -257,8 +267,8 @@ resource "azurerm_container_app_job" "pricing_manual" {
       }
 
       env {
-        name  = "AZURE_LOG_LEVEL"
-        value = "WARNING"
+        name  = "ADX_LOG_LEVEL"
+        value = "INFO"
       }
 
       env {

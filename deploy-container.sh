@@ -208,7 +208,7 @@ if [[ -n "$SCHEDULED_JOB" ]] || [[ -n "$MANUAL_JOB" ]]; then
 
         echo -e "  ${WHITE}2. To trigger with filters (for testing):${NC}"
         echo -e "     ${GRAY}az containerapp job start --resource-group \"$RESOURCE_GROUP_NAME\" --name \"$MANUAL_JOB\" \\${NC}"
-        echo -e "     ${GRAY} MAX_PRICING_ITEMS=\"10\"${NC}"
+        echo -e "     ${GRAY} AZURE_PRICING_MAX_ITEMS=\"10\"${NC}"
         echo ""
     fi
 
