@@ -93,6 +93,21 @@ resource "azurerm_role_assignment" "current_user_adx_contributor" {
   principal_id         = data.azurerm_client_config.current.object_id
 }
 
+# Azure Data Explorer Database for pricing metrics
+resource "azurerm_kusto_database" "testing_pricing_metrics" {
+  name                = "testing-pricing-metrics"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  cluster_name        = azurerm_kusto_cluster.main.name
+
+  hot_cache_period   = "P1D"    # 1 day hot cache
+  soft_delete_period = "P30D"   # 30 days soft delete
+
+  depends_on = [
+    azurerm_kusto_cluster.main
+  ]
+}
+
 # Register Microsoft.Dashboard resource provider
 resource "azurerm_resource_provider_registration" "dashboard" {
   name = "Microsoft.Dashboard"

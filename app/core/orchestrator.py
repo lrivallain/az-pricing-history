@@ -139,9 +139,6 @@ class JobOrchestrator:
                 else:
                     raise ValueError(f"Unknown collector: {collector_name}")
 
-                # Ensure the collector's logger inherits the correct level
-                self._configure_collector_logging(collector)
-
                 self.collectors[collector_name] = collector
                 self.logger.info(f"{collector_name} collector initialized successfully")
 
@@ -149,60 +146,6 @@ class JobOrchestrator:
                 error_msg = f"Failed to initialize {collector_name} collector: {e}"
                 self.logger.error(error_msg)
                 raise
-
-    def _configure_collector_logging(self, collector) -> None:
-        """
-        Configure logging level for a collector instance.
-        
-        Args:
-            collector: Collector instance to configure
-        """
-        # Get the current log level from environment
-        import os
-        log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
-        app_level = getattr(logging, log_level)
-        
-        # Set the level for this specific collector's logger
-        collector.logger.setLevel(app_level)
-        
-        self.logger.debug(f"Set logging level for {collector.collector_name} to {log_level}")
-
-    def _setup_adx_logging(self, adx_client):
-        """Set up ADX logging using the shared ADX client."""
-        if ADX_LOGGING_AVAILABLE:
-            try:
-                self.logger.info("Setting up ADX error logging with shared client...")
-
-                global_config = self.config_manager.get_global_config()
-                adx_log_level = global_config.get('adx_log_level', 'INFO')
-
-                self.adx_log_handler = setup_adx_logging(
-                    kusto_client=adx_client,
-                    adx_database=global_config['adx_database'],
-                    job_id=self.job_id,
-                    job_type=self.job_type,
-                    is_local=self.is_local,
-                    log_level=adx_log_level
-                )
-
-                if self.adx_log_handler:
-                    self.logger.info(f"ADX logging configured with level: {adx_log_level}")
-
-                    # Set up crash logger for uncaught exceptions
-                    create_crash_logger(
-                        kusto_client=adx_client,
-                        adx_database=global_config['adx_database'],
-                        job_id=self.job_id,
-                        job_type=self.job_type,
-                        is_local=self.is_local
-                    )
-                    self.logger.info("Crash logger configured successfully on ADX")
-                else:
-                    self.logger.warning("ADX logging setup failed")
-
-            except Exception as e:
-                self.logger.warning(f"ADX logging setup failed: {e}")
-                self.adx_log_handler = None
 
     def run_collectors(self, collector_names: Optional[List[str]] = None) -> List[Dict[str, Any]]:
         """
@@ -347,14 +290,6 @@ def main():
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[logging.StreamHandler(sys.stderr)]
     )
-
-    # Ensure our application loggers also pick up the configured level
-    app_level = getattr(logging, log_level)
-
-    # Set level for all our application modules
-    logging.getLogger("core").setLevel(app_level)
-    logging.getLogger("collectors").setLevel(app_level)
-    logging.getLogger("shared").setLevel(app_level)
 
     # Reduce Azure SDK noise
     logging.getLogger("azure").setLevel(logging.WARNING)

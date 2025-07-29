@@ -84,7 +84,7 @@ class ConfigManager:
         config = {
             # ADX Configuration
             'adx_cluster_uri': os.getenv('ADX_CLUSTER_URI'),
-            'adx_database': os.getenv('ADX_DATABASE_NAME', 'pricing-metrics'),
+            'adx_database': os.getenv('ADX_DATABASE_NAME'),
 
             # Job Configuration
             'job_type': os.getenv('JOB_TYPE', 'manual'),
